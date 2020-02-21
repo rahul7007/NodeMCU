@@ -1,28 +1,25 @@
-/*
- * HTTP Client POST Request
- * Copyright (c) 2018, circuits4you.com
- * All rights reserved.
- * https://circuits4you.com 
- * Connects to WiFi HotSpot. */
-
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h> 
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 
-/* Set these to your desired credentials. */
-const char *ssid = "Test";  //ENTER YOUR WIFI SETTINGS
-const char *password = "qwerty00000";
+int Led_OnBoard = 2;                  // Initialize the Led_OnBoard 
 
-//Web/Server address to read/write from 
-const char *host = "192.168.1.101";   //https://circuits4you.com website or IP address of server
+//----------I assume you have successfully accessed the sensors. And below is the variable. I made it an arbitrary value.
+int MQ7     = 100;
+int MQ4     = 200;
+int MQ131   = 300;
+//----------
 
-//=======================================================================
-//                    Power on setup
-//=======================================================================
+const char* ssid = "Test";                  // Your wifi Name       
+const char* password = "qwerty12345";          // Your wifi Password
+
+const char *host = "192.168.43.97"; //Your pc or server (database) IP, example : 192.168.0.0 , if you are a windows os user, open cmd, then type ipconfig then look at IPv4 Address.
 
 void setup() {
+  // put your setup code here, to run once:
   delay(1000);
+  pinMode(Led_OnBoard, OUTPUT);       // Initialize the Led_OnBoard pin as an output
   Serial.begin(115200);
   WiFi.mode(WIFI_OFF);        //Prevents reconnection issue (taking too long to connect)
   delay(1000);
@@ -34,71 +31,49 @@ void setup() {
   Serial.print("Connecting");
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    digitalWrite(Led_OnBoard, LOW);
+    delay(250);
     Serial.print(".");
+    digitalWrite(Led_OnBoard, HIGH);
+    delay(250);
   }
 
+  digitalWrite(Led_OnBoard, HIGH);
   //If connection successful show IP address in serial monitor
   Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println("Connected to Network/SSID");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());  //IP address assigned to your ESP
 }
 
-//=======================================================================
-//                    Main Program Loop
-//=======================================================================
-
-
-
 void loop() {
+  // put your main code here, to run repeatedly:
   HTTPClient http;    //Declare object of class HTTPClient
-  Serial.println("Connection Started, Lets start");
-  //smoke
-  /*String ADCSmoke,station1, SmokePostData;
-  int adcSmoke=analogRead(A0); //Read Analog value of SMOKE
-  Serial.print("SMOKE sensor Value is : ");
-  Serial.print("   ");
-  Serial.println(adcSmoke);
-  ADCSmoke = String(adcSmoke);   //String to interger conversion
-  station1 = "A";  */
-  
-  //ldr
-  Serial.println("Connection Started, Lets start");
-  String ADCLdr,station2,LdrPostData;
-  int adcLdr=analogRead(A0);  //Read Analog value of LDR
-  Serial.print("LDR sensor Value is : ");
-  Serial.print("   ");
-  Serial.println(adcLdr);
-  ADCLdr = String(adcLdr);   //String to interger conversion
-  station2 = "B"; //identify Ldr val in database  
 
-  //Post Data
-  //smoke
-  /*SmokePostData = "status=" + ADCSmoke + "&station=" + station1 ; */
+  //-------------------------------------------to send data to the database
+  String MQ7Post, MQ4Post, MQ131Post, postData;
+  MQ7Post = String(MQ7);   //String to interger conversion
+  MQ4Post = String(MQ4);   //String to interger conversion
+  MQ131Post = String(MQ131);   //String to interger conversion
   
-  //ldr
-  LdrPostData = "status=" + ADCLdr + "&station=" + station2; 
+  postData = "mq7val=" + MQ7Post + "&mq4val=" + MQ4Post + "&mq131val=" + MQ131Post;
   
-  http.begin("http://192.168.1.101/Final/sensorpastdata.php");              //Specify request destination
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");    //Specify content-type header
+  http.begin("http://192.168.43.97/MyTest/InsertDB.php");               //Specify request destination
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");                  //Specify content-type header
+ 
+  int httpCode = http.POST(postData);   //Send the request
+  String payload = http.getString();    //Get the response payload
+  //-------------------------------------------
   
-  //smoke
-  /*int httpCode1 = http.POST(SmokePostData);   //Send the request
-  String payload1 = http.getString();    //Get the response payload */
-  //ldr
-  int httpCode2 = http.POST(LdrPostData);   //Send the request
-  String payload2 = http.getString();    //Get the response payload 
-  
-//  Serial.println(httpCode2);   //Print HTTP return code
-//  Serial.println(payload2);    //Print request response payload
-//  Serial.println(httpCode1);   //Print HTTP return code
-//  Serial.println(payload1);    //Print request response payload
-  
+  //Serial.println("LDR Value=" + ldrvalue);
+  Serial.println(httpCode);   //Print HTTP return code
+  Serial.println(payload);    //Print request response payload
+  Serial.println("MQ7= " + MQ7Post + " MQ4= " + MQ4Post + " MQ131= " + MQ131Post);
   
   http.end();  //Close connection
-  Serial.println("Connection stopped, Lets start again");
-  
-  delay(5000);  //Post Data at every 5 seconds
+
+  delay(4000);  //Here there is 4 seconds delay plus 1 second delay below, so Post Data at every 5 seconds
+  digitalWrite(Led_OnBoard, LOW);
+  delay(1000);
+  digitalWrite(Led_OnBoard, HIGH);
 }
