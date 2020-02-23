@@ -65,41 +65,7 @@ void setup() {
   void loop() {
   HTTPClient http;    //Declare object of class HTTPClient
   //Serial.println("Connection Started, Lets start");
-  //smoke
-  /*
-  digitalWrite(S0,LOW);
-  digitalWrite(S1,LOW);
-  digitalWrite(S2,LOW);
-  digitalWrite(S3,LOW);
-  //digitalWrite(buzzer, LOW);
-  //digitalWrite(SmokeLed, LOW);
-  digitalWrite(LdrLed, LOW);
-  String ADCSmoke,station1, SmokePostData;
   
-  int adcSmoke=analogRead(analogpin); //Read Analog value of SMOKE
-  
-  Serial.print("SMOKE sensor Value is : ");
-  Serial.print("   ");
-  Serial.println(adcSmoke);
-  if(adcSmoke>150)
-  {
-    digitalWrite(SmokeLed, HIGH);
-    Serial.print("Smoke is High");
-    //tone(buzzer, 3072, 50);
-    beep(500);
-    //digitalWrite(buzzer, HIGH);
-  }
-  else
-  {
-    digitalWrite(SmokeLed, LOW);
-    Serial.print("Smoke is Low");
-    digitalWrite(buzzer, LOW);
-  }
-  Serial.println();
-  Serial.println();
-  ADCSmoke = String(adcSmoke);   //String to interger conversion
-  station1 = "A";
-  */
   //ldr
   //Serial.println("Connection Started, Lets start");
   digitalWrite(S0,HIGH);
@@ -127,29 +93,18 @@ void setup() {
   station2 = "B"; //identify Ldr val in database 
 
   //Post Data
-  //smoke
-  /*
-  SmokePostData = "status=" + ADCSmoke + "&station=" + station1 ;
-  */
   //ldr
   LdrPostData = "status=" + ADCLdr + "&station=" + station2; 
   
   http.begin("http://192.168.43.97/NMCU/sensorpostdata.php");              //Specify request destination
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");    //Specify content-type header
   
-  //smoke
-  /*
-  int httpCode1 = http.POST(SmokePostData);   //Send the request
-  String payload1 = http.getString();    //Get the response payload
-  */
   //ldr
   int httpCode2 = http.POST(LdrPostData);   //Send the request
   String payload2 = http.getString();    //Get the response payload 
   
 //  Serial.println(httpCode2);   //Print HTTP return code
 //  Serial.println(payload2);    //Print request response payload
-//  Serial.println(httpCode1);   //Print HTTP return code
-//  Serial.println(payload1);    //Print request response payload
   
   
   http.end();  //Close connection
@@ -157,11 +112,3 @@ void setup() {
   
   delay(10000);  //Post Data at every 5 seconds
 }
-/*
-void beep(unsigned char delayms) { //creating function
-  analogWrite(buzzer, 500); //Setting pin to high
-  delay(delayms); //Delaying
-  analogWrite(buzzer ,0); //Setting pin to LOW
-  delay(delayms); //Delaying
-  }
-*/
