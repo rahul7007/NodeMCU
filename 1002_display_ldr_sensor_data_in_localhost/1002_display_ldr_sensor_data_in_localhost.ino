@@ -14,7 +14,7 @@
 //#define buzzer D4
 /* Set these to your desired credentials. */
 const char *ssid = "Test";  //WIFI SETTINGS
-const char *password = "qwerty12345";
+const char *password = "qwerty00000";
 
 //Web/Server address to read/write from 
 const char *host = "192.168.43.97";   //website or IP address of server
@@ -96,7 +96,7 @@ void setup() {
   //ldr
   LdrPostData = "status=" + ADCLdr + "&station=" + station2; 
   
-  http.begin("http://192.168.43.97/NMCU/sensorpostdata.php");              //Specify request destination
+  http.begin("http:// 192.168.43.97/NMCU/test_sensor_data.php");              //Specify request destination
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");    //Specify content-type header
   
   //ldr
@@ -110,5 +110,5 @@ void setup() {
   http.end();  //Close connection
   //Serial.println("Connection stopped, Lets start again");
   
-  delay(10000);  //Post Data at every 5 seconds
+  delay(20000);  //Post Data at every 5 seconds
 }
